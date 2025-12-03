@@ -1,0 +1,741 @@
+{
+  "name": "pfe-hunter-sophistique",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "data0",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -1152,
+        -384
+      ],
+      "id": "c67b5a37-14a0-4598-b10e-3e52311f5667",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        -160
+      ],
+      "id": "75dbd89b-8a4d-4525-a6c0-4ee1d7af6b35",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "VWlEqRLguAHNZjC4",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e95c1d4a-3b8b-4b94-a97b-b6256736fa32",
+              "leftValue": "={{ $json.github_link }}",
+              "rightValue": "NON",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        192,
+        -144
+      ],
+      "id": "e61d9322-ea57-49b6-883c-6424ae08a1cb",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        16
+      ],
+      "id": "6f0441ce-2632-4c40-ba0f-67c5f57f90e9",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "VWlEqRLguAHNZjC4",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ JSON.parse($json.text) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -464,
+        -384
+      ],
+      "id": "cbcd2981-8475-4869-b9a5-e7974747039f",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "options": {
+          "allowFileUploads": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -1360,
+        -384
+      ],
+      "id": "43f3e436-030c-4e52-b75b-819cc303475a",
+      "name": "Upload CV",
+      "webhookId": "97f0ac8d-89a6-4fa9-82ab-979950eb8522"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un expert en analyse de carrière Tech.\nVoici le contenu brut du CV d'un candidat :\n\n{{ $json[\"text\"] }}\n\nTA MISSION :\nAnalyse ce texte et extrais un \"Profil JSON\" structuré.\nNe cherche pas de stage pour l'instant. Contente-toi d'extraire les faits avec une grande précision.\n\nDIRECTIVES D'ANALYSE :\n1. Pour les COMPÉTENCES : Ne te limite pas à la liste à puces \"Skills\". Tu dois scanner les descriptions des projets et des expériences pour déduire les technologies réellement manipulées (ex: si un projet cite \"développement d'une API REST\", ajoute \"API REST\" ou le langage utilisé).\n2. Pour le RÉSUMÉ : Il doit être \"solide\". Il doit fusionner le background académique, les projets phares et la stack technique principale.\n\nJe veux une réponse au format JSON strict avec ces champs :\n- \"resume\": \"Une synthèse professionnelle complète et dense (3-4 phrases). Elle doit mentionner le niveau d'études, la spécialité, et mettre en avant la cohérence entre les projets réalisés et les compétences techniques.\",\n- \"top_skills\": [\"Liste déduite et consolidée des compétences techniques (Langages, Frameworks, Outils) trouvées dans les projets ET la section compétences\"],\n- \"github_link\": \"L'URL du profil GitHub si elle existe, sinon 'NON'\",\n- \"experience_level\": \"Débutant\", \"Intermédiaire\" ou \"Avancé\"\n\nIMPORTANT : Réponds UNIQUEMENT avec le JSON brut. Pas de phrase d'introduction. Pas de balises markdown (```json). Juste le JSON.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -880,
+        -384
+      ],
+      "id": "12541bed-dfd6-4e09-b762-693869837d0e",
+      "name": "Summary About CV"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/users/{{ $json.github_link.split('/').pop() }}/repos?sort=updated&per_page=5",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "n8n-pfe-agent"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        512,
+        -160
+      ],
+      "id": "7e572a73-7d68-42d0-b292-9e1c3b793251",
+      "name": "Scraping Github"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/repos/{{ $json.full_name }}/readme",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github.raw"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "n8n-agent"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text",
+              "outputPropertyName": "readme_content"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        800,
+        -160
+      ],
+      "id": "af980df6-18e8-4c17-8930-2249708e514f",
+      "name": "Extracting Readme",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Récupérer la liste des projets (Métadonnées)\nconst repoMetadata = $('Scraping Github').all(); \n\n// 2. Récupérer le contenu des Readme (Données actuelles)\nconst readmeData = $('Extracting Readme').all();\n\n// 3. Fusionner les deux\nconst summary = repoMetadata.map((repo, index) => {\n  const meta = repo.json;\n  \n  // Par défaut : Pas de readme\n  let content = \"Pas de README disponible.\";\n  \n  // CORRECTION ICI : On vérifie simplement si la donnée 'readme_content' existe.\n  // Plus besoin de vérifier .error explicitement, ce qui supprime le soulignement rouge.\n  if (readmeData[index] && readmeData[index].json && readmeData[index].json.readme_content) {\n     \n     // On prend 1000 caractères pour avoir la stack technique\n     content = readmeData[index].json.readme_content.substring(0, 1000) + \"...\"; \n  }\n\n  return {\n    name: meta.name,\n    // On ajoute la description GitHub (très utile pour l'IA)\n    description: meta.description || \"Pas de description\",\n    language: meta.language || \"Non spécifié\",\n    updated_at: meta.updated_at.split('T')[0], // Date propre (YYYY-MM-DD)\n    readme_excerpt: content // L'extrait du readme\n  };\n});\n\n// 4. Renvoyer le paquet propre\nreturn {\n  json: {\n    github_summary: summary\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1072,
+        -160
+      ],
+      "id": "3e936eba-9e58-41a0-bfc3-da28a9585bd7",
+      "name": "Code.js Formatting Github Infos"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un Directeur Technique (CTO) chargé de l'audit approfondi des candidats.\nTon objectif n'est pas de lister ce que le candidat a fait, mais d'évaluer **comment** il le fait et **quel est son potentiel réel**.\n\nDONNÉES D'ENTRÉE (Portfolio GitHub Brut) :\n{{ JSON.stringify($json.github_summary) }}\n\nMÉTHODOLOGIE D'AUDIT (Rigueur stricte) :\n\n1.  **Analyse de la \"Stack Profonde\" :**\n    * Ne regarde pas seulement les langages. Cherche les \"Frameworks d'Entreprise\" dans les textes (ex: Spring Boot, Angular, React, .NET Core).\n    * Cherche les \"Outils de Production\" (Docker, CI/CD, Tests Unitaires, Swagger, JWT). Leur présence est un marqueur fort de professionnalisme.\n\n2.  **Évaluation de la Complexité Architecturale :**\n    * Le candidat construit-il des \"Hello World\" ou des systèmes ? (Indices : mention de \"Base de données\", \"API REST\", \"Microservices\", \"Authentification\", \"Dashboard Admin\").\n    * Discerne les projets \"Tutoriels\" des projets \"Personnels/Académiques complets\".\n\n3.  **Dynamique de Développement :**\n    * Analyse les dates (`updated_at`). Est-ce un profil en apprentissage continu ? Est-il actif récemment ?\n\nFORMAT DE SORTIE (Synthèse Executive - Ton professionnel et impartial) :\n\nRédige une note de synthèse dense (5-6 lignes) structurée ainsi :\n* **Identité Technique :** Définis le profil (ex: \"Ingénieur Logiciel Backend\", \"Fullstack Polyvalent\", \"Spécialiste Mobile\").\n* **Expertise Validée :** Liste les compétences *prouvées par le code* (Stack majeure + Outils).\n* **Indice de Maturité :** Mentionne explicitement si des pratiques avancées (Architecture, DevOps, Documentation soignée) sont détectées. C'est le point clé.\n* **Verdict Opérationnel :** Conclus sur sa capacité à intégrer une équipe technique (ex: \"Profil opérationnel sur des stacks modernes\", \"Profil académique prometteur\").\n\nCONTRAINTES ABSOLUES :\n* Interdiction de citer des noms de projets spécifiques.\n* Interdiction d'inventer des compétences non présentes dans les données.\n* Réponds uniquement par l'analyse.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1344,
+        -160
+      ],
+      "id": "35610086-791a-4981-95b7-139bb2db6cf7",
+      "name": "Summary About Github"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1872,
+        -400
+      ],
+      "id": "022e6514-c52d-4fcc-b147-f055939cde7b",
+      "name": "Merge CV + Github"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        2192,
+        -208
+      ],
+      "id": "825e1c50-8046-4b41-bd18-4af5202bff6e",
+      "name": "Groq Chat Model3",
+      "credentials": {
+        "groqApi": {
+          "id": "VWlEqRLguAHNZjC4",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://google.serper.dev/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "name": "num",
+              "value": "20"
+            },
+            {
+              "name": "gl",
+              "value": "tn"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2640,
+        -400
+      ],
+      "id": "0bd36856-2572-44ad-aac3-db5bc8c153d1",
+      "name": "The Offers",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ZrVzMmEHHv1reiw0",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        2880,
+        -208
+      ],
+      "id": "d22fb923-e671-4b62-977b-6626899e4913",
+      "name": "Groq Chat Model2",
+      "credentials": {
+        "groqApi": {
+          "id": "VWlEqRLguAHNZjC4",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Rôle : Tu es un Mentor Carrière Senior qui aide un futur ingénieur à choisir son PFE.\n\nCONTEXTE :\nUne recherche Google très ciblée a déjà été faite sur la base des compétences du candidat.\nLes résultats ci-dessous sont donc déjà techniquement pertinents (bonne stack).\n\nDONNÉES D'ENTRÉE (Résultats Google) :\n{{ JSON.stringify($json[\"organic\"]) }}\n\nTA MISSION (LE FILTRE QUALITÉ) :\nAnalyse cette liste et extrais les opportunités \"Premium\".\nNe te limite pas à un nombre fixe : garde toutes les offres excellentes (entre 2 et 5 généralement).\n\nCRITÈRES DE SÉLECTION (HIÉRARCHIE DE VALEUR) :\n1.  **Priorité Absolue aux \"PFE Books\" :** Si un résultat est un PDF ou un catalogue officiel (\"Book PFE 2026\", \"Catalogue\"), c'est le Graal. Mets-le en premier.\n2.  **Analyse du Sujet :** Privilégie les descriptions qui évoquent des défis d'ingénierie (Architecture, Scalabilité, Refonte, DevOps, Innovation). Élimine les descriptions vagues ou \"tâches répétitives\".\n3.  **Réputation de la Source :** Privilégie les sites carrières directs des entreprises ou LinkedIn. Méfie-toi des agrégateurs génériques (Tanitjobs, Keejob) sauf si l'offre est très détaillée.\n\nFORMAT DE SORTIE (Markdown Professionnel) :\nPour chaque offre sélectionnée :\n\n### 🌟 [Titre du Sujet/Poste] chez [Nom de l'Entreprise]\n- **Type :** [Indique si c'est un \"Catalogue PDF\", \"Offre Directe\" ou \"Via Agrégateur\"]\n- **Lien :** [URL]\n- **Pourquoi cette offre est intéressante :** Analyse la qualité du sujet ou de l'entreprise. (Ex: \"C'est un PFE Book officiel, ce qui garantit un encadrement structuré\" ou \"Le sujet mentionne une architecture Microservices, excellent pour monter en compétence\").",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        2880,
+        -400
+      ],
+      "id": "73f569bb-ccfc-4f7c-b998-a568c059cd4e",
+      "name": "The Best Pfe"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        512,
+        384
+      ],
+      "id": "4a3f847c-d026-456a-9547-fa27a1c82efd",
+      "name": "Groq Chat Model4",
+      "credentials": {
+        "groqApi": {
+          "id": "VWlEqRLguAHNZjC4",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://google.serper.dev/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "name": "num",
+              "value": "20"
+            },
+            {
+              "name": "gl",
+              "value": "tn"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        800,
+        176
+      ],
+      "id": "a739960e-ce4b-4652-a019-ccdc7c747836",
+      "name": "The Offers2",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ZrVzMmEHHv1reiw0",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un Expert en Sourcing.\nLe candidat n'a pas de GitHub, nous basons la recherche sur son CV.\n\nDONNÉES DU CANDIDAT :\n- Résumé : {{ $json.resume }}\n- Skills : {{ $json.top_skills }}\n\nTA MISSION :\nConstruis une requête Google EFFICACE pour trouver des offres de stage.\n\nRÈGLES D'ASSOUPLISSEMENT (POUR ÉVITER 0 RÉSULTATS) :\n1.  **Date :** Cherche \"PFE 2025\" (plus courant que \"2025-2026\").\n2.  **Mots-clés :** Utilise l'opérateur OR entre les technos. Ne cherche pas TOUT en même temps. (ex: \"Spring\" OR \"Java\" plutôt que \"Spring\" AND \"Java\").\n3.  **Localisation :** Utilise \"Tunisie\" (plus large que Sfax uniquement).\n4.  **Format :** Ne force pas le \"filetype:pdf\" si cela risque de tuer la recherche.\n\nEXEMPLE DE REQUÊTE ÉQUILIBRÉE :\n(\"PFE 2025\" OR \"Stage pré-embauche\") AND (\"Spring Boot\" OR \"Java\") AND \"Tunisie\" -linkedin\n\nRéponds UNIQUEMENT par la chaîne de recherche.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        512,
+        176
+      ],
+      "id": "33671adc-3926-42b2-aeb5-1feed4290ba4",
+      "name": "The Request For Google 2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Rôle : Mentor Carrière pour étudiants ingénieurs.\n\nCONTEXTE :\nLe candidat postule sur la base de son CV (pas de GitHub disponible pour preuve).\nNous avons cherché des offres correspondant à son profil déclaratif.\n\nDONNÉES D'ENTRÉE :\n1. Profil du candidat (CV) : {{ $('If').item.json.resume }}\n2. Résultats de recherche (Marché) : {{ JSON.stringify($json[\"organic\"]) }}\n\nTA MISSION :\nSélectionne les 3 meilleures opportunités de stage PFE.\n\nCRITÈRES DE SÉLECTION (QUALITÉ AVANT TOUT) :\n1.  **Pertinence Académique :** L'offre correspond-elle au niveau (Ingénieur/PFE) ? Élimine les stages \"Technicien\" ou \"Ouvrier\" si le candidat est ingénieur.\n2.  **Stack Technique :** L'offre demande-t-elle les technos que le candidat a listées dans son CV ?\n3.  **Le \"Graal\" :** Si tu vois un PDF \"PFE Book\" ou \"Catalogue\", c'est la priorité n°1.\n\nFORMAT DE SORTIE (Markdown) :\nPour chaque offre retenue :\n\n### 📄 [Poste/Sujet] chez [Entreprise]\n- **Type :** [Catalogue PDF / Offre Web]\n- **Lien :** [URL]\n- **Pourquoi c'est pertinent :** [Explique le lien avec le CV. Ex: \"Cette offre demande du Angular, qui est listé comme ta compétence principale.\"]",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1072,
+        176
+      ],
+      "id": "36217bf3-3231-44a4-81e5-d0761562366c",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1072,
+        368
+      ],
+      "id": "ddadd5d9-87cc-42c5-b083-43a8f3f71d8e",
+      "name": "Groq Chat Model5",
+      "credentials": {
+        "groqApi": {
+          "id": "VWlEqRLguAHNZjC4",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un Expert en Sourcing IT et \"Google Dorking\".\n\nANALYSE DU PROFIL (Fusion CV + GitHub) :\n1. DÉCLARATIF (CV) : {{ $json.resume }}\n2. PREUVE TECHNIQUE (GitHub) :\n   {{ $json.text }}\n   (Concentre-toi sur les technos citées dans \"Expertise Validée\").\n\nCONTEXTE DE LA RECHERCHE :\nLe candidat cherche un \"Stage PFE\" pour la saison universitaire **2025-2026**.\nIl faut absolument éviter les offres périmées de l'an dernier.\n\nTA MISSION :\nConstruis UNE SEULE chaîne de recherche Google complexe et ultra-ciblée.\n\nRÈGLES DE CONSTRUCTION :\n1.  **Le Filtre Temporel (CRITIQUE) :** Utilise des mots-clés stricts : \"PFE Book 2025-2026\", \"Catalogue 2026\", \"Sujets PFE 2026\", \"Campagne PFE 2026\".\n2.  **La Techno (Preuve) :** Utilise UNIQUEMENT les stacks validées par l'audit GitHub (ex: si GitHub dit \"Expert Spring Boot\", mets \"Spring Boot\").\n3.  **La Géographie :** Tunisie (Sfax, Tunis, Sousse...).\n4.  **Le Format :** Privilégie les fichiers PDF (`filetype:pdf`) souvent utilisés pour les catalogues officiels, ou les sites carrières.\n\nEXEMPLE DE SORTIE ATTENDUE :\n(\"PFE Book 2025-2026\" OR \"Catalogue PFE 2026\" OR \"Sujets PFE 2026\") AND (\"Spring Boot\" OR \"Dotnet\") AND (\"Tunisie\" OR \"Sfax\") -linkedin\n\nRéponds UNIQUEMENT par la chaîne de recherche brute.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        2192,
+        -400
+      ],
+      "id": "83d575b9-538c-42af-b726-aea9bd5e53b3",
+      "name": "The Requet (CV + Github)"
+    },
+    {
+      "parameters": {
+        "content": "Only CV",
+        "height": 80,
+        "width": 150
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        208,
+        64
+      ],
+      "id": "141a5cdc-ae55-45d7-aec0-031900705b6b",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "CV + Github",
+        "height": 80,
+        "width": 150
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        336,
+        -224
+      ],
+      "id": "1947bccb-a216-4911-bbfe-768901ab6bc1",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Summary About CV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summary About CV",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Scraping Github",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "The Request For Google 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summary About Github",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge CV + Github",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Upload CV": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summary About CV": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scraping Github": {
+      "main": [
+        [
+          {
+            "node": "Extracting Readme",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extracting Readme": {
+      "main": [
+        [
+          {
+            "node": "Code.js Formatting Github Infos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code.js Formatting Github Infos": {
+      "main": [
+        [
+          {
+            "node": "Summary About Github",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summary About Github": {
+      "main": [
+        [
+          {
+            "node": "Merge CV + Github",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge CV + Github": {
+      "main": [
+        [
+          {
+            "node": "The Requet (CV + Github)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "The Requet (CV + Github)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "The Offers": {
+      "main": [
+        [
+          {
+            "node": "The Best Pfe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "The Best Pfe",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "The Request For Google 2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "The Request For Google 2": {
+      "main": [
+        [
+          {
+            "node": "The Offers2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "The Offers2": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "The Requet (CV + Github)": {
+      "main": [
+        [
+          {
+            "node": "The Offers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "92544cc9-08a0-4557-af01-bc0bfca1a9c7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4dbcd59f4eeda80e08dfd539741ba78dd7647ccb66e0ce6c4ee5e0a256932213"
+  },
+  "id": "wzDvTQGkUgy9flsP",
+  "tags": []
+}
