@@ -43,7 +43,7 @@ Le système repose sur une architecture événementielle pilotée par **n8n** (a
 `Ingestion PDF` -> `Profilage Sémantique` -> `Parsing JSON` -> `Routage Intelligent (If/Else)`
 
 #### 🟢 Branche A : L'Audit Technique Approfondi (Si GitHub détecté)
-* **Scraping API GitHub (REST) :** Récupération des métadonnées des 5 derniers projets.
+* **Raw HTTP Fetching (REST) : Consommation directe des endpoints publics de GitHub pour récupérer les métadonnées des projets (sans authentification complexe).
 * **Deep Fetching Pattern :** Itération pour récupérer le contenu brut des fichiers `README.md` (Pattern List-to-Detail).
 * **Tech Lead Agent (LLM) :** Analyse de la documentation pour évaluer la qualité du code (Architecture, Docker, Tests). Détermine la séniorité réelle (Junior vs Confirmé).
 * **Fusion de Données :** Merge des données Déclaratives (CV) et Prouvées (GitHub).
@@ -65,6 +65,7 @@ Cette branche s'active si aucun portfolio n'est trouvé.
 * **Orchestration :** n8n (Workflow Automation).
 * **LLM (Cerveau) :** Groq (Llama-3.3-70b-versatile) pour une inférence ultra-rapide.
 * **Recherche Web :** Serper.dev (Google Search API).
+* **Data Fetching : Consommation d'APIs REST via requêtes HTTP brutes (GitHub Public Endpoints).
 
 ---
 
