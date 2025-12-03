@@ -2,6 +2,7 @@
 
 ![n8n](https://img.shields.io/badge/Orchestrator-n8n-ff6e5c?style=for-the-badge&logo=n8n)
 ![Llama 3](https://img.shields.io/badge/Model-Llama_3.3_70B-blue?style=for-the-badge&logo=meta)
+![HTTP](https://img.shields.io/badge/Protocol-REST_HTTP-black?style=for-the-badge&logo=http)
 ![Serper](https://img.shields.io/badge/Search-Google_Serper-green?style=for-the-badge&logo=google)
 
 > **Un système d'orchestration multi-agents autonome qui trouve le stage PFE parfait en croisant votre CV avec la réalité technique de votre code GitHub.**
@@ -25,11 +26,11 @@ Les étudiants ingénieurs peinent souvent à trouver des stages PFE (Projet de 
 
 ## 🤖 La Solution : Un Pipeline d'Orchestration IA
 
-Ce projet n'est pas un simple scraper. C'est un **pipeline d'orchestration LLM** sophistiqué qui intègre des données externes pour agir comme un Chasseur de Têtes Technique Senior.
+Ce projet est un **pipeline d'orchestration LLM** sophistiqué qui intègre des données externes pour agir comme un Chasseur de Têtes Technique Senior.
 
-Contrairement à un système RAG passif, cet agent effectue une **investigation active en temps réel** :
+Contrairement à un simple outil de recherche, cet agent effectue une **investigation active** :
 1.  **Ingestion :** Il lit et comprend sémantiquement votre CV (PDF).
-2.  **Audit Technique :** Il scanne votre GitHub via API pour vérifier vos compétences réelles (Preuve par le code).
+2.  **Audit Technique :** Il scanne vos dépôts publics via des requêtes HTTP pour vérifier vos compétences réelles (Preuve par le code).
 3.  **Stratégie de Recherche :** Il construit des requêtes complexes (Google Dorking) basées sur vos compétences validées.
 4.  **Filtrage & Matching :** Il élimine le bruit pour ne garder que les opportunités de haute qualité (PFE Books officiels, Software Houses).
 
@@ -43,7 +44,7 @@ Le système repose sur une architecture événementielle pilotée par **n8n** (a
 `Ingestion PDF` -> `Profilage Sémantique` -> `Parsing JSON` -> `Routage Intelligent (If/Else)`
 
 #### 🟢 Branche A : L'Audit Technique Approfondi (Si GitHub détecté)
-* **Raw HTTP Fetching (REST) : Consommation directe des endpoints publics de GitHub pour récupérer les métadonnées des projets (sans authentification complexe).
+* **Raw HTTP Fetching (REST) :** Consommation directe des endpoints publics GitHub pour récupérer la liste des projets récents.
 * **Deep Fetching Pattern :** Itération pour récupérer le contenu brut des fichiers `README.md` (Pattern List-to-Detail).
 * **Tech Lead Agent (LLM) :** Analyse de la documentation pour évaluer la qualité du code (Architecture, Docker, Tests). Détermine la séniorité réelle (Junior vs Confirmé).
 * **Fusion de Données :** Merge des données Déclaratives (CV) et Prouvées (GitHub).
@@ -54,7 +55,7 @@ Cette branche s'active si aucun portfolio n'est trouvé.
 
 #### 🏁 Moteur de Recherche & Matching (Web Retrieval)
 * **Strategy Generator Agent :** Crée dynamiquement une requête Google complexe (ex: `("PFE Book 2026") AND ("Spring Boot" OR "Angular") AND "Tunisie" -linkedin`).
-* **Serper API :** Exécution de la recherche sur le web tunisien (Contexte local).
+* **Serper API :** Exécution de la recherche sur le web Tunisien (Contexte local).
 * **Final Judge Agent :** Agit comme un mentor carrière. Il croise les offres trouvées avec le profil du candidat pour générer une recommandation justifiée.
     * *Exemple de sortie :* "Je recommande cette offre Microservices chez Vermeg car tu as déjà implémenté une architecture similaire dans ton projet 'Medical-Office'."
 
@@ -65,7 +66,7 @@ Cette branche s'active si aucun portfolio n'est trouvé.
 * **Orchestration :** n8n (Workflow Automation).
 * **LLM (Cerveau) :** Groq (Llama-3.3-70b-versatile) pour une inférence ultra-rapide.
 * **Recherche Web :** Serper.dev (Google Search API).
-* **Data Fetching : Consommation d'APIs REST via requêtes HTTP brutes (GitHub Public Endpoints).
+* **Protocoles :** Consommation d'API REST via HTTP Requests.
 
 ---
 
