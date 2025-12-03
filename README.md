@@ -6,6 +6,12 @@
 
 > **Un système d'orchestration multi-agents autonome qui trouve le stage PFE parfait en croisant votre CV avec la réalité technique de votre code GitHub.**
 
+<br>
+<p align="center">
+  <img src="assets/workflow-overview.png" alt="Aperçu du Workflow n8n" width="800">
+</p>
+<br>
+
 ## 📺 Démo du Projet
 
 Voir l'agent en action (Vidéo de démonstration) :
