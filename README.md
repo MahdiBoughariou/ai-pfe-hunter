@@ -83,7 +83,7 @@ Cette branche s'active si aucun portfolio n'est trouvé.
     cd ai-pfe-hunter
     ```
 2.  Importer le workflow :
-    * Ouvrez votre instance n8n (http://localhost:5678).
+    * Ouvrez votre instance n8n.
     * Importez le fichier `workflow.json` inclus dans ce dépôt.
 3.  Configurer les Credentials dans n8n :
     * `Groq API`
