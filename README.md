@@ -65,7 +65,6 @@ Cette branche s'active si aucun portfolio n'est trouvé.
 * **Orchestration :** n8n (Workflow Automation).
 * **LLM (Cerveau) :** Groq (Llama-3.3-70b-versatile) pour une inférence ultra-rapide.
 * **Recherche Web :** Serper.dev (Google Search API).
-* **Sources de Données :** GitHub API, Parsing Binaire PDF.
 * **Déploiement :** Docker & Docker Compose.
 
 ---
